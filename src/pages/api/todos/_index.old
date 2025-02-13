@@ -1,0 +1,45 @@
+// src/pages/api/todos/index.js
+import { getTodos, addTodo } from '../../../lib/todo';
+import TodoList from '../../../components/TodoList.astro'; // Import TodoList component to render HTML
+//import { Astro } from 'astro/runtime/server'; // Need to import Astro to use Astro.render
+import TodoItem from '../../../components/TodoItem.astro';
+import astroConfig from "../../../../astro.config.mjs";
+
+import { AstroContainer } from 'astro/container';
+
+//import type { APIRoute } from 'astro';
+
+//export const POST: APIRoute = async ({ request }) => {
+export async function POST({ params, request }) {
+   console.log("BEGIN POST: " + JSON.stringify(request));
+    const formData = await request.formData(); // Get form data from the request
+    const text = formData.get('text')?.toString(); // Extract the 'text' field
+
+    if (!text) {
+        return new Response("Text is required", { status: 400 }); // Handle missing text
+    }
+
+    await addTodo(text); // Add the new todo to our service
+
+    const updatedTodos = await getTodos(); // Re-fetch the updated todo list
+
+    // Render the updated TodoList component to HTML
+  //  const todoListHTML = await Astro.render(TodoList, { todos: updatedTodos }); // Pass todos as props
+//  <TodoItem todo={newTodo} />
+
+
+const container = await AstroContainer.create();
+//import { renderToString } from 'astro/runtime/server/render';
+    return new Response(todoListHTML, { // Return the HTML as the responsei
+	body: await container.renderToString(TodoItem),
+        status: 200,
+        headers: { 'Content-Type': 'text/html' }, // Important: set Content-Type to text/html
+    });
+};
+
+
+// We still need getStaticPaths for dynamic API routes, even for POST endpoints in the same directory.
+export function getStaticPaths() {
+    return [];
+}
+export const prerender = false;

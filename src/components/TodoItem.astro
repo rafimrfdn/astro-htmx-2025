@@ -1,0 +1,47 @@
+---
+// src/components/TodoItem.astro
+import { deleteTodo, getTodos } from '../services/todo';
+
+export interface Props {
+    todo: { id: number; text: string; completed: boolean };
+}
+const { todo } = Astro.props;
+---
+<li class="todo-item" id={`todo-${todo.id}`}>
+    {todo.text} {todo.completed ? ' (Completed)' : ''}
+    <button
+        class="delete-button"
+        hx-delete={`/api/todos/${todo.id}`}
+        hx-target="closest .todo-item"
+        hx-swap="outerHTML">
+        Delete
+    </button>
+</li>
+
+<style>
+  .todo-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .todo-item:last-child {
+    border-bottom: none;
+  }
+.delete-button {
+    padding: 8px 12px; /* Slightly smaller padding than before */
+    border: none;
+    border-radius: 4px;
+    background-color: #dc3545; /* Red color for delete */
+    color: white;
+    cursor: pointer;
+    font-size: 0.9rem; /* Slightly smaller font size */
+    transition: background-color 0.2s ease-in-out; /* Smoother transition */
+  }
+
+  .delete-button:hover {
+    background-color: #c82333; /* Darker red on hover */
+  }
+</style>
